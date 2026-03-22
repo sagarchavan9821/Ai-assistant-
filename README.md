@@ -7,7 +7,7 @@ A voice-controlled AI assistant with web interface support.
 - **backend.py**: FastAPI backend server for the web interface
 - **guru.html**: Web interface frontend
 - **guru.py**: Standalone voice assistant script (alternative to web interface)
-- **test_gemini.py**: Test script for Gemini API
+- 
 
 ## Setup Instructions
 
@@ -22,7 +22,7 @@ pip install -r requirements.txt
 #### For Web Interface (backend.py):
 Create a `.env` file in the project root:
 ```
-GEMINI_API_KEY=your-gemini-api-key-here
+openrouter =api_key_here
 ```
 
 Or set it as an environment variable:
