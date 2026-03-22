@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guru AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #fdfeff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .ai-icon {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-container {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .user-avatar {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        }
+
+        .guru-avatar {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .user-content {
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            border-bottom-right-radius: 5px;
+        }
+
+        .guru-content {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom-left-radius: 5px;
+        }
+
+        .quick-commands {
+            padding: 15px 25px;
+            background: rgba(15, 23, 42, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .command-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .command-btn:hover {
+            background: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .voice-controls {
+            padding: 20px 25px;
+            background: rgba(15, 23, 42, 0.7);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .voice-visualizer {
+            width: 100%;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bar {
+            width: 5px;
+            height: 10px;
+            background: #3b82f6;
+            border-radius: 3px;
+            transition: height 0.2s;
+        }
+
+        .mic-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .mic-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .mic-btn.listening {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .status {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .status.listening {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .wake-word {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        /* Scrollbar styling */
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .ai-icon {
+                position: relative;
+                right: 0;
+                top: 0;
+                transform: none;
+                margin: 10px auto;
+            }
+            
+            .content {
+                height: 500px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Guru AI Assistant</h1>
+            <p>Your intelligent voice-controlled assistant</p>
+            <div class="ai-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="chat-container" id="chatContainer">
+                <!-- Chat messages will appear here -->
+                <div class="message">
+                    <div class="message-avatar guru-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content guru-content">
+                        Hello! I'm Guru, your AI assistant. Say "Guru" to wake me up, then give me a command.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-commands">
+                <div class="command-btn" onclick="sendCommand('open google')">
+                    <i class="fas fa-search"></i> Open Google
+                </div>
+                <div class="command-btn" onclick="sendCommand('open youtube')">
+                    <i class="fab fa-youtube"></i> Open YouTube
+                </div>
+                <div class="command-btn" onclick="sendCommand('open instagram')">
+                    <i class="fab fa-instagram"></i> Open Instagram
+                </div>
+                <div class="command-btn" onclick="sendCommand('play music')">
+                    <i class="fas fa-music"></i> Play Music
+                </div>
+                <div class="command-btn" onclick="sendCommand('what is the weather today?')">
+                    <i class="fas fa-cloud-sun"></i> Weather
+                </div>
+                <div class="command-btn" onclick="sendCommand('tell me a joke')">
+                    <i class="fas fa-laugh"></i> Tell a Joke
+                </div>
+            </div>
+            
+            <div class="voice-controls">
+                <div class="voice-visualizer" id="visualizer">
+                    <!-- Voice visualization bars will appear here -->
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+                
+                <button class="mic-btn" id="micButton" onclick="toggleListening()">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                
+                <div class="status" id="status">
+                    Click microphone or say <span class="wake-word">"Guru"</span> to start
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let assistantActive = false;
+        let silenceTimer = null;
+
+        // DOM Elements
+        const chatContainer = document.getElementById('chatContainer');
+        const micButton = document.getElementById('micButton');
+        const status = document.getElementById('status');
+        const visualizer = document.getElementById('visualizer');
+        const bars = visualizer.querySelectorAll('.bar');
+        
+        // State variables
+        let isListening = false;
+        let recognition = null;
+        let mediaRecorder = null;
+        let audioContext = null;
+        let analyser = null;
+        let dataArray = null;
+        
+        // Check for browser support
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        // Initialize speech recognition if available
+        if (window.SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            recognition.onstart = function() {
+                console.log('Speech recognition started');
+                isListening = true;
+                micButton.classList.add('listening');
+                status.textContent = 'Listening... Say "Guru" to activate';
+                status.classList.add('listening');
+                startVisualization();
+            };
+            
+            recognition.onresult = function (event) {
+    let transcript = "";
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+            transcript += event.results[i][0].transcript;
+        }
+    }
+
+    transcript = transcript.trim().toLowerCase();
+    if (!transcript) return;
+
+    console.log("Heard:", transcript);
+
+    // 🟡 WAKE WORD MODE
+    if (!assistantActive) {
+        if (transcript.includes("guru")) {
+            assistantActive = true;
+            addMessage("guru", "Yes sir, I am listening.");
+            speakText("Yes sir, I am listening.");
+            status.textContent = "Guru is active. Speak freely.";
+            startSilenceTimer();
+        }
+        return;
+    }
+
+    // 🟢 ACTIVE MODE (NO WAKE WORD REQUIRED)
+    addMessage("user", transcript);
+    sendToBackend(transcript);
+    startSilenceTimer();
+};
+
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                stopListening();
+                addMessage('system', `Error: ${event.error}. Please try again.`);
+            };
+            
+            recognition.onend = function() {
+                console.log('Speech recognition ended');
+                stopListening();
+            };
+        } else {
+            status.textContent = 'Speech recognition not supported in this browser';
+            micButton.disabled = true;
+        }
+        
+        // Toggle listening state
+        function toggleListening() {
+            if (!recognition) {
+                addMessage('system', 'Speech recognition is not supported in your browser.');
+                return;
+            }
+            
+            if (isListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+        
+        // Start speech recognition
+        function startListening() {
+    try {
+        recognition.start();
+        recognition.continuous = true;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+        function startSilenceTimer() {
+    if (silenceTimer) clearTimeout(silenceTimer);
+
+    silenceTimer = setTimeout(() => {
+        assistantActive = false;
+        status.textContent = 'Click mic or say "Guru" to start';
+        addMessage("guru", "Going to sleep. Say Guru to wake me.");
+        speakText("Going to sleep. Say Guru to wake me.");
+    }, 7000); // 7 seconds silence
+}
+
+        
+        // Stop speech recognition
+        function stopListening() {
+            isListening = false;
+            micButton.classList.remove('listening');
+            status.textContent = 'Click microphone or say "Guru" to start';
+            status.classList.remove('listening');
+            stopVisualization();
+            
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (error) {
+                    console.error('Error stopping recognition:', error);
+                }
+            }
+        }
+        
+        // Process command from user
+       function processCommand(command) {
+    addMessage("user", command);
+    sendToBackend(command);
+}
+
+        function speakText(text) {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-IN";
+    speech.rate = 1;
+    window.speechSynthesis.speak(speech);
+}
+
+        // Send command to backend via WebSocket or fetch
+        function sendToBackend(command) {
+    fetch("http://127.0.0.1:8000/command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command })
+    })
+    .then(res => res.json())
+    .then(data => {
+        addMessage("guru", data.reply);
+        speakText(data.reply);
+
+        // CLIENT-SIDE WEBSITE OPENING
+        if (data.action === "open_google") {
+            window.open("https://www.google.com", "_blank");
+        }
+        if (data.action === "open_youtube") {
+            window.open("https://www.youtube.com", "_blank");
+        }
+        if (data.action === "open_instagram") {
+            window.open("https://www.instagram.com", "_blank");
+        }
+    })
+    .catch(() => {
+        addMessage("guru", "Backend not running");
+    });
+}
+
+        
+        // Send command from button click
+        function sendCommand(command) {
+            addMessage('user', command);
+            sendToBackend(command);
+        }
+        
+        // Add message to chat
+        function addMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === 'user' ? 'user-message' : ''}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = `message-avatar ${sender === 'user' ? 'user-avatar' : 'guru-avatar'}`;
+            avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+            
+            const content = document.createElement('div');
+            content.className = `message-content ${sender === 'user' ? 'user-content' : 'guru-content'}`;
+            content.textContent = text;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+            chatContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Voice visualization
+        function startVisualization() {
+            if (!navigator.mediaDevices || !window.AudioContext) {
+                console.log('Audio visualization not supported');
+                return;
+            }
+            
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioContext.createAnalyser();
+                    const microphone = audioContext.createMediaStreamSource(stream);
+                    microphone.connect(analyser);
+                    analyser.fftSize = 32;
+                    const bufferLength = analyser.frequencyBinCount;
+                    dataArray = new Uint8Array(bufferLength);
+                    
+                    function updateVisualization() {
+                        if (!isListening) return;
+                        
+                        requestAnimationFrame(updateVisualization);
+                        analyser.getByteFrequencyData(dataArray);
+                        
+                        let values = '';
+                        for (let i = 0; i < bars.length; i++) {
+                            const value = dataArray[i % bufferLength] / 4;
+                            bars[i].style.height = `${10 + value}px`;
+                            bars[i].style.background = `linear-gradient(to top, #3b82f6, #8b5cf6)`;
+                        }
+                    }
+                    
+                    updateVisualization();
+                })
+                .catch(err => {
+                    console.error('Error accessing microphone:', err);
+                });
+        }
+        
+        function stopVisualization() {
+            // Reset bars
+            bars.forEach(bar => {
+                bar.style.height = '10px';
+                bar.style.background = '#3b82f6';
+            });
+            
+            // Close audio context if open
+            if (audioContext && audioContext.state !== 'closed') {
+                audioContext.close();
+            }
+        }
+        
+        // Keyboard shortcut for microphone (space bar)
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && e.target === document.body) {
+                e.preventDefault();
+                toggleListening();
+            }
+        });
+        
+        // Initial welcome message
+        window.onload = function() {
+            setTimeout(() => {
+                addMessage('guru', 'Try clicking the microphone button or saying "Guru" followed by a command like "open Google" or "play music".');
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
